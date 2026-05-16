@@ -1,0 +1,13 @@
+[project]
+name = "yadro-random-users-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiohttp>=3.13.5",
+    "asyncpg>=0.31.0",
+    "fastapi[standard]>=0.136.1",
+    "pydantic-settings>=2.14.1",
+    "sqlalchemy>=2.0.49",
+]
