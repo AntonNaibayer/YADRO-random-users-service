@@ -7,43 +7,53 @@ from sqlalchemy import select, func
 
 # from src.database import SessionDep, Base, setup_database
 from src.config import settings
-from src.database import new_session, setup_database, SessionDep
+from src.database import new_session, SessionDep
 from src.clients.random_data_tools import RandomDataClient
 from src.people.models import Person
 from src.people.router import people_router
 from src.people.schemas import PersonResponse
 
+async def load_initial_people(client: RandomDataClient) -> None:
+    async with new_session() as session:
+        people_count = await session.scalar(
+            select(func.count(Person.id))
+        )
+
+    if people_count and people_count > 0:
+        return
+
+    data = await client.get_listperson(1000)
+
+    #сохраняем в бд
+    people = [
+        Person.from_external_api(person)
+        for person in data
+    ]
+
+    async with new_session() as session:
+        session.add_all(people)
+        await session.commit()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     rdt_client = RandomDataClient(
-        base_url=settings.BASE_URL
+        base_url=settings.BASE_URL,
     )
 
     #создаём клиент именно в момент запуска сервера(а не на моменте импортов)
     await rdt_client.start()
     app.state.rdt_client = rdt_client
 
-
-    await setup_database()
-    #получаем данные о 1000 пользователях в момент запуска (условие ТЗ)\
-    data = await rdt_client.get_listperson(1000)
-
-    people = [
-        Person.from_external_api(person) for person in data
-    ]
-    
-    #сохраняем в бд
-    async with new_session() as session:
-        session.add_all(people)
-        await session.commit()
-    
-
     try:
-        ...
+        #получаем данные о 1000 пользователях в момент запуска (условие ТЗ)\
+        await load_initial_people(rdt_client)
+
         yield
+
     finally:
-        # не забываем закрыть после остановки сервера
+
+        
         await rdt_client.close()
 
     
@@ -59,6 +69,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
