@@ -16,9 +16,25 @@ services:
       timeout: 5s
       retries: 10
 
-  backend:
+  migrations:
     build:
       context: ./backend
+    image: yadro-random-users-backend
+    container_name: yadro-random-users-migrations
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: yadro
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      BASE_URL: https://api.randomdatatools.ru
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    image: yadro-random-users-backend
     container_name: yadro-random-users-backend
     environment:
       DB_HOST: db
@@ -30,8 +46,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      db:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
 
   frontend:
     build:
