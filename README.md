@@ -47,6 +47,143 @@ fullstack-приложение для загрузки случайных люд
 - Docker
 - Docker Compose
 
+
+---
+
+## Запуск через Docker Compose
+
+Это основной рекомендуемый способ запуска.
+
+### Требования
+
+Перед запуском должны быть установлены:
+
+- Docker
+- Docker Compose
+
+### Запуск
+
+Из корня проекта:
+
+```bash
+docker compose up --build
+```
+
+После запуска будут доступны:
+
+```text
+Frontend: http://localhost:3000
+Backend:  http://localhost:8000
+Swagger:  http://localhost:8000/docs
+```
+---
+
+## Локальный запуск без Docker
+
+### 1. PostgreSQL
+
+Нужно иметь запущенный PostgreSQL.
+
+Пример переменных окружения для локального запуска backend:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=yadro
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+BASE_URL=https://api.randomdatatools.ru
+```
+
+Создайте файл:
+
+```text
+backend/.env
+```
+
+и добавьте туда эти переменные, изменив значения при необходимости.
+
+---
+
+### 2. Backend
+
+Перейти в папку backend:
+
+```bash
+cd backend
+```
+
+Установить зависимости:
+
+```bash
+uv sync
+```
+
+Применить миграции:
+
+```bash
+uv run alembic upgrade head
+```
+
+Запустить backend:
+
+```bash
+uv run uvicorn src.main:app --reload
+```
+
+Backend будет доступен по адресу:
+
+```text
+http://localhost:8000
+```
+
+Swagger:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+### 3. Frontend
+
+Перейти в папку frontend:
+
+```bash
+cd frontend
+```
+
+Установить зависимости:
+
+```bash
+npm install
+```
+
+Создать файл:
+
+```text
+frontend/.env
+```
+
+Добавить:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+Запустить frontend:
+
+```bash
+npm run dev
+```
+
+Frontend будет доступен по адресу, который покажет Vite. Обычно это:
+
+```text
+http://127.0.0.1:5173
+```
+
 ---
 
 ## Обоснование выбора технологий
@@ -270,143 +407,7 @@ YADRO-random-users-service/
 └── .gitignore
 ```
 
----
 
-## Запуск через Docker Compose
-
-Это основной рекомендуемый способ запуска.
-
-### Требования
-
-Перед запуском должны быть установлены:
-
-- Docker
-- Docker Compose
-
-### Запуск
-
-Из корня проекта:
-
-```bash
-docker compose up --build
-```
-
-После запуска будут доступны:
-
-```text
-Frontend: http://localhost:3000
-Backend:  http://localhost:8000
-Swagger:  http://localhost:8000/docs
-```
----
-
-## Локальный запуск без Docker
-
-### 1. PostgreSQL
-
-Нужно иметь запущенный PostgreSQL.
-
-Пример переменных окружения для локального запуска backend:
-
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=yadro
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-BASE_URL=https://api.randomdatatools.ru
-```
-
-Создайте файл:
-
-```text
-backend/.env
-```
-
-и добавьте туда эти переменные, изменив значения при необходимости.
-
----
-
-### 2. Backend
-
-Перейти в папку backend:
-
-```bash
-cd backend
-```
-
-Установить зависимости:
-
-```bash
-uv sync
-```
-
-Применить миграции:
-
-```bash
-uv run alembic upgrade head
-```
-
-Запустить backend:
-
-```bash
-uv run uvicorn src.main:app --reload
-```
-
-Backend будет доступен по адресу:
-
-```text
-http://localhost:8000
-```
-
-Swagger:
-
-```text
-http://localhost:8000/docs
-```
-
----
-
-### 3. Frontend
-
-Перейти в папку frontend:
-
-```bash
-cd frontend
-```
-
-Установить зависимости:
-
-```bash
-npm install
-```
-
-Создать файл:
-
-```text
-frontend/.env
-```
-
-Добавить:
-
-```env
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-Запустить frontend:
-
-```bash
-npm run dev
-```
-
-Frontend будет доступен по адресу, который покажет Vite. Обычно это:
-
-```text
-http://127.0.0.1:5173
-```
-
----
 
 ## Переменные окружения
 
